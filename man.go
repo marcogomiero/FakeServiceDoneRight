@@ -17,17 +17,16 @@ func main() {
 	=="="==`)
 
 	fmt.Printf("FakeServiceDoneRight listening on port %d...\n", port)
+	go func() {
+		for {
+			fmt.Println("I'm alive")
+			time.Sleep(1 * time.Minute)
+		}
+	}()
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		fmt.Printf("Errore nel server: %s\n", err)
 	}
-
-	go func() {
-		for {
-			fmt.Println("I'm alive")
-			time.Sleep(5 * time.Minute)
-		}
-	}()
 }
 
 func fakeHandler(w http.ResponseWriter, r *http.Request) {
