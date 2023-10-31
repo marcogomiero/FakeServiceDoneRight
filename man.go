@@ -9,6 +9,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", fakeHandler)
+	http.HandleFunc("/healthz", healthzHandler)
 	port := 8080
 	fmt.Println(`
 	  ,_,   
@@ -17,10 +18,11 @@ func main() {
 	=="="==`)
 
 	fmt.Printf("FakeServiceDoneRight listening on port %d...\n", port)
+	// Non serve a nulla se non a loggare ogni 5 minuti che è ancora vivo
 	go func() {
 		for {
 			fmt.Println("I'm alive")
-			time.Sleep(1 * time.Minute)
+			time.Sleep(5 * time.Minute)
 		}
 	}()
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
@@ -33,10 +35,11 @@ func fakeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
 }
 
-// Gestione concorrente delle richieste usando goroutine
+// Routine di test per sviluppare carico
+// Da usare in caso di necessità
 func startConcurrentServer() {
 	var wg sync.WaitGroup
-	numRequests := 1000 // Modifica questo valore al numero desiderato di richieste concorrenti
+	numRequests := 1000
 	for i := 0; i < numRequests; i++ {
 		wg.Add(1)
 		go func() {
@@ -51,4 +54,9 @@ func startConcurrentServer() {
 		}()
 	}
 	wg.Wait()
+}
+
+func healthzHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("I'm alive and healthy!"))
 }
