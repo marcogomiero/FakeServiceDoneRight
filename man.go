@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -34,32 +32,6 @@ func main() {
 
 func fakeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
-}
-
-// Routine di test per sviluppare carico
-// Da usare in caso di necessità
-func startConcurrentServer() {
-	var wg sync.WaitGroup
-	numRequests := 1000
-	for i := 0; i < numRequests; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			resp, err := http.Get("http://localhost:8080")
-			if err != nil {
-				fmt.Printf("Errore nella richiesta: %s\n", err)
-				return
-			}
-			defer func(Body io.ReadCloser) {
-				err := Body.Close()
-				if err != nil {
-
-				}
-			}(resp.Body)
-			fmt.Printf("Status code: %d\n", resp.StatusCode)
-		}()
-	}
-	wg.Wait()
 }
 
 func healthzHandler(w http.ResponseWriter, r *http.Request) {
