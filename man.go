@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -49,7 +50,12 @@ func startConcurrentServer() {
 				fmt.Printf("Errore nella richiesta: %s\n", err)
 				return
 			}
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				if err != nil {
+
+				}
+			}(resp.Body)
 			fmt.Printf("Status code: %d\n", resp.StatusCode)
 		}()
 	}
@@ -58,5 +64,8 @@ func startConcurrentServer() {
 
 func healthzHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("I'm alive and healthy!"))
+	_, err := w.Write([]byte("I'm alive and healthy!"))
+	if err != nil {
+		return
+	}
 }
